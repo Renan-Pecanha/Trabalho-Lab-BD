@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>LISTA CLIENTES</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8">
+                <h1>CLIENTES</h1>
+                <table class="table">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th>Código</th>
+                            <th>Placa</th>
+                            <th>Nome</th>
+                            <th>Descrição</th>
+                            <th>Preço</th>
+                            <th>Inclusão</th>
+                            <th>Fabricação</th>
+                            <th>Tempo de Uso</th>
+                            <th>Opções</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <!-- fim da 1a coluna -->
+            <div class="col-md-4">
+                <h1>CADASTRAR CLIENTES</h1>
+                <form id="form-cliente">
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">nome</label>
+                        <input type="text" class="form-control" id="nome" name="nome" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">email</label>
+                        <input type="text" class="form-control" id="email" name="email" required>
+                    </div>
+
+                    <div class="mb-3 ">
+                        <label for="endereco" class="form-label ">endereço</label>
+                        <textarea class="form-control " id="endereco" name="endereco " rows="3 " required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefone" class=" form-label ">telefone</label>
+                        <input type="text " class="form-control " id="telefone" name="telefone" min="0 " required>
+                    </div>
+
+
+                    <button type="submit " class="btn btn-primary ">Salvar</button>
+                    <button type="reset " class="btn btn-danger ">Limpar</button>
+                </form>
+            </div>
+        </div>
+        <!-- fim da linha -->
+    </div>
+    <!-- fim do container -->
+
+    <script>
+        // Listagem dos Dados     
+        const tbody = document.querySelector('table tbody');
+        fetch('http://localhost:4000/api/veiculos')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(cliente => {
+                    const row = document.createElement('tr');
+                    const codigoCell = document.createElement('td');
+
+                    nomeCell.textContent = cliente['Nome'];
+                    const descricaoCell = document.createElement('td');
+                    descricaoCell.textContent = cliente['Descrição'];
+                    const precoCell = document.createElement('td');
+                    precoCell.textContent = cliente['Preço'];
+                    const inclusaoCell = document.createElement('td');
+                    inclusaoCell.textContent = cliente['Inclusão'];
+                    const fabricacaoCell = document.createElement('td');
+                    fabricacaoCell.textContent = cliente['Fabricação'];
+                    const tempoDeUsoCell = document.createElement('td');
+                    tempoDeUsoCell.textContent = cliente['Tempo de Uso'];
+
+                    row.appendChild(codigoCell);
+                    row.appendChild(placaCell);
+                    row.appendChild(nomeCell);
+                    row.appendChild(descricaoCell);
+                    row.appendChild(precoCell);
+                    row.appendChild(inclusaoCell);
+                    row.appendChild(fabricacaoCell);
+                    row.appendChild(tempoDeUsoCell);
+                    /* Botão Apagar */
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Apagar';
+                    deleteButton.classList.add('btn', 'btn-danger', 'btn-sm');
+                    deleteButton.addEventListener('click', () => apagarVeiculo(cliente.Placa));
+
+                    const deleteCell = row.insertCell();
+                    deleteCell.appendChild(deleteButton);
+
+
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => console.error(error));
+
+        //Inclusão de um novo registro
+        const form = document.querySelector('#form-veiculo');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const codigo = form.codigo.value;
+            const placa = form.placa.value;
+            const nome = form.nome.value;
+            const descricao = form.descricao.value;
+            const fabricacao = form.fabricacao.value;
+            const preco = form.preco.value;
+
+            const data = {
+                'placa': placa,
+                'nome': nome,
+                'descricao': descricao,
+                'fabricacao': fabricacao,
+                'preco': preco
+            };
+
+            fetch('http://localhost:4000/api/veiculos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Aqui você pode fazer algo com a resposta, como atualizar a lista de veículos exibida na página
+                    alert(JSON.stringify(data))
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error(error)
+                });
+        });
+        // Exclusão dos Dados
+        function apagarVeiculo(placa) {
+            const confirmacao = confirm(`Tem certeza de que deseja excluir o veículo placa ${placa}?`);
+
+            if (confirmacao) {
+                fetch(`http://localhost:4000/api/veiculos/${placa}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Veículo excluído com sucesso!');
+                            location.reload();
+                        } else {
+                            throw new Error('Não foi possível excluir o veículo.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert('Não foi possível excluir o veículo.');
+                    });
+            }
+        }
+    </script>
+
+</body>
+
+</html>
